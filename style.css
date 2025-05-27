@@ -1,0 +1,28 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4; /* Light grey background */
+    color: #333; /* Dark grey text */
+}
+
+header {
+    background-color: #333; /* Dark background for header */
+    color: #fff; /* White text for header */
+    padding: 1em 0;
+    text-align: center;
+}
+
+h1 {
+    color: #333; /* Dark color for h1, assuming it's not in a dark header */
+    text-align: center;
+    padding-top: 20px;
+}
+
+/* Add a simple style for any images we might add later */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 20px auto; /* Center images with some margin */
+}
