@@ -1,0 +1,78 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main, master ] # master for compatibility if some repos use it
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build_and_test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x] # Test on two common LTS versions
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4 # Updated to v4
+
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4 # Updated to v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v3 # Updated to v3
+        with:
+          version: 8 # Specify pnpm version, adjust if needed
+          run_install: false # We will run install manually
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4 # Updated to v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile # Use frozen-lockfile for CI
+
+      - name: Run linters
+        run: pnpm lint
+
+      - name: Run tests
+        run: pnpm test
+        env: # Set dummy env vars for tests if they rely on them (services might)
+          # User Service specific (if needed for tests passing without real DB)
+          DB_HOST: localhost
+          DB_PORT: 54321 # Use a non-standard port to avoid conflicts
+          DB_USER: testuser
+          DB_PASSWORD: testpassword
+          DB_NAME: test_user_service_db
+          JWT_SECRET: testjwtsecret
+          USER_SERVICE_PORT: 30011
+          # Listing Service specific
+          LISTING_SERVICE_DB_HOST: localhost
+          LISTING_SERVICE_DB_PORT: 54322
+          LISTING_SERVICE_DB_USER: testuser
+          LISTING_SERVICE_DB_PASSWORD: testpassword
+          LISTING_SERVICE_DB_NAME: test_listing_service_db
+          LISTING_SERVICE_PORT: 30022
+          # API Gateway specific (if tests depend on these)
+          API_GATEWAY_PORT: 30001
+          USER_SERVICE_URL: http://localhost:30011
+          LISTING_SERVICE_URL: http://localhost:30022
+
+
+      - name: Run build
+        run: pnpm build

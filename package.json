@@ -1,0 +1,21 @@
+{
+  "name": "app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx --ignore-path .gitignore",
+    "format": "prettier --write . --ignore-path .gitignore",
+    "test": "pnpm --recursive run test",
+    "build": "pnpm --recursive run build",
+    "test:all": "echo \"Running all tests...\" && pnpm lint && pnpm test && pnpm build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.10.0",
+  "devDependencies": {
+    "eslint": "^9.28.0",
+    "prettier": "^3.5.3"
+  }
+}
